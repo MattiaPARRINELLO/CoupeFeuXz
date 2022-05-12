@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Prod UPLOAD</h1>
+        <form action="/uploadFile" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="avecTag">Avec tag</label>
+                <input type="file" class="form-control" id="avecTag" name="avecTag" required>  
+            </div>
+            <div class="form-group">
+                <label for="sansTag">Sans tag</label>
+                <input type="file" class="form-control" id="sansTag" name="sansTag" required>
+            </div>
+            <div class="form-group">
+                <label for="title">Title</label>
+                title=<input type="text" class="form-control" id="title" name="title">
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                desc=<input type="text" class="form-control" id="description" name="description">
+            </div>
+            <div class="form-group">
+                <label for="price">price</label>
+                price=<input type="text" class="form-control" id="price" name="price">
+            </div>
+            <div class="form-group">
+                <label for="code">code</label>
+                code=<input type="text" class="form-control" id="code" name="code">
+            </div>
+            <div class="form-group">
+                <button class="btn btn-danger btn-block" type="submit">Upload</button>
+        </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</html>
