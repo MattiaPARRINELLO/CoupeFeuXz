@@ -2,27 +2,36 @@ const express = require("express");
 const app = express();
 const multer = require("multer");
 const path = require("path");
-const port = 3000;
+const port = 80;
 const fs = require("fs");
 const bodyParser = require("body-parser");
-const morgan = require("morgan");
 
-let accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), {
-  flags: "a",
-});
+const print = (msg) => {
+  console.log(format(msg));
+};
+const format = (msg) => {
+  //date format
+  const date = new Date();
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  const second = date.getSeconds();
+  let time = `[${hour}:${minute}:${second}]`;
+  return time + msg.toString().replace(/\n/g, "\\n");
+};
 let storage = multer.diskStorage({
   destination: function (_req, _file, cb) {
     cb(null, "public/uploads/");
   },
   filename: function (_req, file, cb) {
-    cb(null, file.fieldName + path.extname(file.originalName));
+    cb(null, file.fieldname + path.extname(file.originalname));
   },
 });
 
-const upload = multer({
+let upload = multer({
   storage: storage,
 });
-const multiple = upload.fields([
+
+let multiple = upload.fields([
   {
     name: "withTag",
     maxCount: 1,
@@ -35,11 +44,6 @@ const multiple = upload.fields([
 
 app.set("view engine", "ejs");
 app.set("trust proxy", true);
-app.use(
-  morgan("dev", {
-    stream: accessLogStream,
-  })
-);
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -48,11 +52,7 @@ app.get("/", (_req, res) => {
   res.render("home");
 });
 
-app.get("/admin", (_req, res) => {
-  res.render("admin");
-});
-
-app.get("list", (_req, res) => {
+app.get("/liste", (_req, res) => {
   fs.readFile("json/prods.json", "utf8", function (err, data) {
     if (err) throw err;
     let json = JSON.parse(data);
@@ -109,47 +109,58 @@ app.post("/login", (req, res) => {
 
 app.post("/uploadFile", multiple, (req, res) => {
   if (req.files) {
-    console.log("files uploaded");
     res.send("files uploaded");
-    let title = req.body.title;
-    let description = req.body.description;
-    let prix = req.body.price;
-    let code = req.body.code;
-    let informations = {
-      name: title,
-      description: description,
-      price: prix,
-      code: code,
-      extensionTag: path.extname(req.files.withTag[0].originalName),
-      extensionNoTag: path.extname(req.files.withoutTag[0].originalName),
-    };
-    var data = fs.readFileSync("./json/prods.json");
-    var json = JSON.parse(data);
-    json.push(informations);
-    fs.writeFile(
-      "./json/prods.json",
-      JSON.stringify(json),
-      { encoding: "utf-8" },
-      function (err) {
+
+    fs.readFile("json/prods.json", "utf8", function (err, data) {
+      if (err) throw err;
+
+      let title = req.body.title;
+      let description = req.body.description;
+      let prix = req.body.price;
+      let code = req.body.code;
+
+      let infos = {
+        name: title,
+        description: description,
+        price: prix,
+        code: code,
+        extensionTag: path.extname(req.files.withTag[0].originalname),
+        extensionNoTag: path.extname(req.files.withoutTag[0].originalname),
+      };
+
+      let json = JSON.parse(data);
+      json.push(infos, (err) => {
         if (err) throw err;
-      }
-    );
-    fs.rename(
-      "./public/uploads/withoutTag" +
-        path.extname(req.files.avecTag[0].originalName),
-      "./prod/" + title + path.extname(req.files.avecTag[0].originalName),
-      function (err) {
-        if (err) throw err;
-      }
-    );
-    fs.rename(
-      "./public/uploads/withTag" +
-        path.extname(req.files.sansTag[0].originalName),
-      "./prod-test/" + title + path.extname(req.files.sansTag[0].originalName),
-      function (err) {
-        if (err) throw err;
-      }
-    );
+      });
+      fs.writeFile(
+        "json/prods.json",
+        JSON.stringify(json, "\t"),
+        { encoding: "utf-8" },
+        (err) => {
+          if (err) throw err;
+        }
+      );
+
+      fs.rename(
+        "public/uploads/withoutTag" +
+          path.extname(req.files.withoutTag[0].originalname),
+        "prod/" + title + path.extname(req.files.withoutTag[0].originalname),
+        function (err) {
+          if (err) throw err;
+        },
+
+        fs.rename(
+          "public/uploads/withTag" +
+            path.extname(req.files.withTag[0].originalname),
+          "prod-test/" +
+            title +
+            path.extname(req.files.withTag[0].originalname),
+          function (err) {
+            if (err) throw err;
+          }
+        )
+      );
+    });
   }
 });
 

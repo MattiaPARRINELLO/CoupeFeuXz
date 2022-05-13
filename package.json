@@ -1,14 +1,14 @@
 {
-  "name": "prod",
-  "version": "1.0.0",
+  "name": "coupefeuxz-site",
+  "version": "1.1.0",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
   },
-  "author": "",
+  "author": "SoBot",
   "license": "ISC",
-  "description": "",
+  "description": "Site web de CoupeFeuXz",
   "dependencies": {
     "body-parser": "^1.20.0",
     "ejs": "^3.1.7",
@@ -16,5 +16,17 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.4",
     "nodemon": "^2.0.16"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MattiaPARRINELLO/CoupeFeuXz.git"
+  },
+  "keywords": [
+    "website"
+  ],
+  "bugs": {
+    "url": "https://github.com/MattiaPARRINELLO/CoupeFeuXz/issues"
+  },
+  "homepage": "https://github.com/MattiaPARRINELLO/CoupeFeuXz#readme"
 }
