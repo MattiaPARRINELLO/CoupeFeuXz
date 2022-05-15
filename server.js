@@ -129,18 +129,10 @@ app.post("/uploadFile", multiple, (req, res) => {
       };
 
       let json = JSON.parse(data);
-      json.push(infos, (err) => {
+      json.push(infos);
+      fs.writeFile("json/prods.json", JSON.stringify(json), (err) => {
         if (err) throw err;
       });
-      fs.writeFile(
-        "json/prods.json",
-        JSON.stringify(json, "\t"),
-        { encoding: "utf-8" },
-        (err) => {
-          if (err) throw err;
-        }
-      );
-
       fs.rename(
         "public/uploads/withoutTag" +
           path.extname(req.files.withoutTag[0].originalname),
