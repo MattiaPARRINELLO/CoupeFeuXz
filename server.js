@@ -1,16 +1,7 @@
-const express = require("express");
-const app = express();
-const multer = require("multer");
-const path = require("path");
-const port = 80;
-const fs = require("fs");
-const bodyParser = require("body-parser");
-
 const print = (msg) => {
-  console.log(format(msg));
+  print(msg);
 };
 const format = (msg) => {
-  //date format
   const date = new Date();
   const hour = date.getHours();
   const minute = date.getMinutes();
@@ -18,6 +9,22 @@ const format = (msg) => {
   let time = `[${hour}:${minute}:${second}]`;
   return time + msg.toString().replace(/\n/g, "\\n");
 };
+
+const express = require("express");
+print(format("Express loaded"));
+const app = express();
+print(format("Express app created"));
+const multer = require("multer");
+print(format("Multer loaded"));
+const path = require("path");
+print(format("Path loaded"));
+const port = 80;
+print(format("Setting up server on port " + port));
+const fs = require("fs");
+print(format("FS loaded"));
+const bodyParser = require("body-parser");
+print(format("Body parser loaded"));
+
 let storage = multer.diskStorage({
   destination: function (_req, _file, cb) {
     cb(null, "public/uploads/");
@@ -26,10 +33,12 @@ let storage = multer.diskStorage({
     cb(null, file.fieldname + path.extname(file.originalname));
   },
 });
+print(format("Storage loaded"));
 
 let upload = multer({
   storage: storage,
 });
+print(format("Upload loaded"));
 
 let multiple = upload.fields([
   {
@@ -41,29 +50,40 @@ let multiple = upload.fields([
     maxCount: 1,
   },
 ]);
+print(format("Multiple loaded"));
 
 app.set("view engine", "ejs");
+print(format("EJS loaded"));
 app.set("trust proxy", true);
+print(format("Trust proxy loaded"));
 
 app.use(express.static("public"));
+print(format("Static files loaded"));
 app.use(bodyParser.urlencoded({ extended: false }));
+print(format("Body parser loaded"));
 
 app.get("/", (_req, res) => {
   res.render("home");
+  print(format("Home page loaded"));
 });
 
 app.get("/liste", (_req, res) => {
+  print(format("Loading list page"));
   fs.readFile("json/prods.json", "utf8", function (err, data) {
     if (err) throw err;
+    print(format("File read"));
     let json = JSON.parse(data);
     res.render("list", {
       name: json,
     });
+    print(format("List page loaded"));
   });
 });
 
 app.get("/more", (req, res) => {
+  print(format("Loading more page"));
   fs.readFile("json/prods.json", "utf8", function (err, data) {
+    print(format("File read"));
     if (err) throw err;
     let json = JSON.parse(data);
     let input = req.query.t;
@@ -72,21 +92,24 @@ app.get("/more", (req, res) => {
         res.render("more", {
           prod: element,
         });
+        print(format("More page loaded"));
       }
     }
   });
 });
 
 app.get("/download", (req, res) => {
+  print(format("Loading download page"));
   let input = req.query.input;
   fs.readFile("json/prods.json", "utf8", function (err, data) {
+    print(format("File read"));
     if (err) throw err;
     let json = JSON.parse(data);
     for (const element of json) {
       if (element.code == input) {
-        console.log(element.name);
         const file = `./prod/` + element.name + element.extensionTag;
         res.download(file);
+        print(format("File downloaded"));
       }
     }
   });
@@ -94,32 +117,36 @@ app.get("/download", (req, res) => {
 
 app.get("/login", (_req, res) => {
   res.render("login");
+  print(format("Login page loaded"));
 });
 
 app.post("/login", (req, res) => {
-  console.log(req);
   let username = req.body.username;
   let password = req.body.password;
   if (username == "admin" && password == "CoupeFeuXz") {
     res.render("admin");
+    print(format("Logged in"));
   } else {
     res.redirect("/login");
+    print(
+      format("Login failed. Username :" + username + " Password :" + password)
+    );
   }
 });
 
 app.post("/uploadFile", multiple, (req, res) => {
   if (req.files) {
-    res.send("files uploaded");
+    print(format("Uploading file"));
 
     fs.readFile("json/prods.json", "utf8", function (err, data) {
       if (err) throw err;
+      print(format("File read"));
+      const title = req.body.title;
+      const description = req.body.description;
+      const prix = req.body.price;
+      const code = req.body.code;
 
-      let title = req.body.title;
-      let description = req.body.description;
-      let prix = req.body.price;
-      let code = req.body.code;
-
-      let infos = {
+      const infos = {
         name: title,
         description: description,
         price: prix,
@@ -133,29 +160,32 @@ app.post("/uploadFile", multiple, (req, res) => {
       fs.writeFile("json/prods.json", JSON.stringify(json), (err) => {
         if (err) throw err;
       });
+      print(format("File written"));
       fs.rename(
         "public/uploads/withoutTag" +
           path.extname(req.files.withoutTag[0].originalname),
         "prod/" + title + path.extname(req.files.withoutTag[0].originalname),
         function (err) {
           if (err) throw err;
-        },
-
-        fs.rename(
-          "public/uploads/withTag" +
-            path.extname(req.files.withTag[0].originalname),
-          "prod-test/" +
-            title +
-            path.extname(req.files.withTag[0].originalname),
-          function (err) {
-            if (err) throw err;
-          }
-        )
+        }
       );
+      print(format("File renamed"));
+
+      fs.rename(
+        "public/uploads/withTag" +
+          path.extname(req.files.withTag[0].originalname),
+        "prod-test/" + title + path.extname(req.files.withTag[0].originalname),
+        function (err) {
+          if (err) throw err;
+        }
+      );
+      print(format("File renamed"));
+      res.redirect("/");
+      print(format("File uploaded"));
     });
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  print(format(`Server is running on port ${port}`));
 });
