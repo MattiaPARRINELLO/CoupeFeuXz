@@ -1,11 +1,11 @@
 const print = (msg) => {
-  print(msg);
+  console.log(msg);
 };
 const format = (msg) => {
-  const date = new Date();
-  const hour = date.getHours();
-  const minute = date.getMinutes();
-  const second = date.getSeconds();
+  let date = new Date();
+  let hour = date.getHours();
+  let minute = date.getMinutes();
+  let second = date.getSeconds();
   let time = `[${hour}:${minute}:${second}]`;
   return time + msg.toString().replace(/\n/g, "\\n");
 };
@@ -23,6 +23,7 @@ print(format("Setting up server on port " + port));
 const fs = require("fs");
 print(format("FS loaded"));
 const bodyParser = require("body-parser");
+const { Console } = require("console");
 print(format("Body parser loaded"));
 
 let storage = multer.diskStorage({
@@ -184,6 +185,24 @@ app.post("/uploadFile", multiple, (req, res) => {
       print(format("File uploaded"));
     });
   }
+});
+
+app.get("/downloadTest", (req, res) => {
+  print(format("Loading downloadTest page"));
+  let input = req.query.n;
+  console.log(input);
+  fs.readFile("json/prods.json", "utf8", function (err, data) {
+    print(format("File read"));
+    if (err) throw err;
+    let json = JSON.parse(data);
+    for (const element of json) {
+      if (element.name == input) {
+        const file = `./prod-test/` + element.name + element.extensionTag;
+        res.download(file);
+        print(format("File downloaded"));
+      }
+    }
+  });
 });
 
 app.listen(port, () => {
